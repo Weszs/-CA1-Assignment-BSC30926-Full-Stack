@@ -1,0 +1,85 @@
+@inject SchoolDirectoryService DirectoryService
+@inject ILogger<SchoolDirectory> Logger
+
+<section class="directory" aria-labelledby="directory-title">
+    <div class="directory-heading">
+        <div>
+            <p class="eyebrow">EDUTOTS · SCHOOL NETWORK</p>
+            <h1 id="directory-title">School directory</h1>
+            <p class="intro">Find school contacts and leadership across the Edutots network.</p>
+        </div>
+    </div>
+
+    <div class="directory-tools">
+        <label class="search-box" for="school-search">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="school-search" type="search" @bind="Search" @bind:event="oninput" placeholder="Search school name..." autocomplete="off" />
+        </label>
+        <p class="school-count"><strong>@(schools?.Count ?? 0)</strong> schools</p>
+    </div>
+
+    @if (isLoading)
+    {
+        <p class="loading-state" role="status">Loading schools...</p>
+    }
+    else if (errorMessage is not null)
+    {
+        <div class="message message-error" role="alert">
+            <p>@errorMessage</p>
+            <button class="retry-button" type="button" @onclick="LoadSchoolsAsync">Try again</button>
+        </div>
+    }
+    else if (!FilteredSchools.Any())
+    {
+        <p class="empty-state">@(string.IsNullOrWhiteSpace(Search) ? "No schools were returned by the API." : "No schools match that search.")</p>
+    }
+    else
+    {
+        <div class="school-list">
+            @foreach (var school in FilteredSchools)
+            {
+                <SchoolCard School="@school" OnSelect="@SelectSchool" IsSelected="@(selectedSchoolId == school.SchoolId)" />
+            }
+        </div>
+    }
+</section>
+
+@code {
+    private IReadOnlyList<School>? schools;
+    private int? selectedSchoolId;
+    private string Search { get; set; } = string.Empty;
+    private string? errorMessage;
+    private bool isLoading = true;
+
+    private IEnumerable<School> FilteredSchools => (schools ?? []).Where(school =>
+        string.IsNullOrWhiteSpace(Search) ||
+        (school.SchoolName?.Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase) ?? false));
+
+    protected override Task OnInitializedAsync() => LoadSchoolsAsync();
+
+    private async Task LoadSchoolsAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            schools = await DirectoryService.GetSchoolsAsync();
+        }
+        catch (Exception exception) when (exception is HttpRequestException or JsonException or TaskCanceledException)
+        {
+            Logger.LogWarning(exception, "Unable to retrieve the Edutots school directory.");
+            errorMessage = "Unable to retrieve school data.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private Task SelectSchool(School school)
+    {
+        selectedSchoolId = school.SchoolId;
+        return Task.CompletedTask;
+    }
+}

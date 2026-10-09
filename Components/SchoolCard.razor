@@ -1,0 +1,66 @@
+<article class="school-row @(IsSelected ? "school-row--selected" : string.Empty)">
+    <div class="school-index">@School.SchoolId</div>
+    <div class="school-main">
+        <div class="school-title-line">
+            <h2>
+                <button type="button" class="school-select" aria-expanded="@IsSelected.ToString().ToLowerInvariant()" aria-controls="school-details-@School.SchoolId" @onclick="SelectAsync">
+                    @School.SchoolName
+                </button>
+            </h2>
+        </div>
+        <p class="school-address">@School.Address</p>
+        <div class="school-meta">
+            @if (!string.IsNullOrWhiteSpace(School.HeadFullName))
+            {
+                <span><span class="meta-label">Head</span> @School.HeadFullName</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(School.ProprietorFullName))
+            {
+                <span><span class="meta-label">Proprietor</span> @School.ProprietorFullName</span>
+            }
+        </div>
+    </div>
+    <div class="school-contact">
+        @if (!string.IsNullOrWhiteSpace(School.PhoneNo))
+        {
+            <div>
+                <span class="contact-label">Phone</span>
+                <a href="tel:@School.PhoneNo">@School.PhoneNo</a>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(School.EmailAddress))
+        {
+            <div>
+                <span class="contact-label">Email</span>
+                <a href="mailto:@School.EmailAddress">@School.EmailAddress</a>
+            </div>
+        }
+    </div>
+    @if (IsSelected)
+    {
+        <section class="school-detail" id="school-details-@School.SchoolId" aria-label="School details for @School.SchoolName">
+            <dl class="detail-grid">
+                <div><dt>SchoolId</dt><dd>@School.SchoolId</dd></div>
+                <div><dt>SchoolName</dt><dd>@School.SchoolName</dd></div>
+                <div><dt>Address</dt><dd>@School.Address</dd></div>
+                <div><dt>PhoneNo</dt><dd>@School.PhoneNo</dd></div>
+                <div><dt>EmailAddress</dt><dd>@School.EmailAddress</dd></div>
+                <div><dt>ProprietorFullName</dt><dd>@School.ProprietorFullName</dd></div>
+                <div><dt>HeadFullName</dt><dd>@School.HeadFullName</dd></div>
+            </dl>
+        </section>
+    }
+</article>
+
+@code {
+    [Parameter]
+    public School School { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<School> OnSelect { get; set; }
+
+    [Parameter]
+    public bool IsSelected { get; set; }
+
+    private Task SelectAsync() => OnSelect.InvokeAsync(School);
+}

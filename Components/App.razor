@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f4ee" />
+    <base href="/" />
+    <title>School Directory - Edutots</title>
+    <link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/" aria-label="Edutots school directory">
+            <span class="brand-mark" aria-hidden="true">E</span>
+            <span>edutots<span class="brand-period">.</span></span>
+        </a>
+        <span class="header-label">SCHOOL NETWORK</span>
+    </header>
+    <main role="main">
+        <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+    </main>
+    <footer class="site-footer">
+        <span>Edutots school network</span>
+        <span>School directory</span>
+    </footer>
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>
